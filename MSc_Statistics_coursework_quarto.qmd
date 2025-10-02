@@ -1,7 +1,7 @@
 ---
 title: "Coursework Template"
 subtitle: 'MSc in Statistics 2025/26, Imperial College London'
-author: "Andrew Duncan, Oliver Ratmann"
+author: "Andrew Duncan, Oliver Ratmann, Zak Varty, Angela Liu"
 format:
   html:
     toc: true
@@ -9,8 +9,9 @@ format:
     self-contained: true
     df-print: paged
   pdf: default
-format-links: false
+format-links: true
 bibliography: "MSc_Statistics_coursework_template_quarto.bib" 
+link-citations: true
 ---
 
 <style type="text/css">
@@ -39,7 +40,7 @@ require(kableExtra)
 # Put any library imports and other preamble here.
 ```
 
-This Rmarkdown document is intended to provide a basic template that you may use throughout the course, and to introduce you to basic functionality of the open-source bookdown R package for writing Rmarkdown documents [@xie2016bookdown].
+This Rmarkdown document is intended to provide a basic template that is to be used throughout the program, introducing the basic functionality of the open-source bookdown R package for writing Rmarkdown documents. [@xie2016bookdown].
 
 Please note:
 
@@ -49,20 +50,38 @@ Please note:
 - kable syntax to build clean and clear tables that can be referenced;
 - Rmarkdown inline functions to collect and print all code used.
 
+# Labeling and Referencing {#sec-labeling}
+
+## Referencing TLDR 
+
+- Label items of markdown using the `{#type-label}` 
+- Label code output with the `#| label: type-label` 
+- Reference either in the main text using `@type-label`
+
+Example reference types: `sec`, `fig`, `tbl`, `eq`.
+
+For full documentation see [Quarto Cross-References](https://quarto.org/docs/authoring/cross-references.html).
+
+## Referencing Sections and Subsections 
+
+``` markdown
+# Labeling and Referencing {#sec-labeling}
+...
+@sec-labeling focuses on labelling and referencing parts of your document.
+```
+
+@sec-labeling focuses on labelling and referencing parts of your document.
+
 # Sampling from the Cauchy distribution
 
 In this question we seek to generate samples from the standard Cauchy distribution, with pdf given by
-\begin{equation}
-  p(x) = \frac{1}{\pi (1 + x^2)}, \quad x \in \mathbb{R}.
-  (\#eq:1)
-\end{equation}
-The cdf associated with \@ref(eq:1) is given by
-\begin{equation}
-  F(x) = \frac{1}{\pi}\arctan(x) + \frac{1}{2}.
-  (\#eq:2)
-\end{equation}
+$$p(x) = \frac{1}{\pi (1 + x^2)}, \quad x \in \mathbb{R}.$${#eq-1}
 
-**Part a.**  We apply the inversion method as described by @graham2013stochastic. We first compute the generalised inverse of the cdf \@ref(eq:2).  To this end, let $y\in [0,1]$, then
+The cdf associated with @eq-1 is given by
+
+$$F(x) = \frac{1}{\pi}\arctan(x) + \frac{1}{2}.$$ {#eq-2}
+
+**Part a.**  We apply the inversion method as described by @graham2013stochastic. We first compute the generalised inverse of the cdf @eq-2.  To this end, let $y\in [0,1]$, then
 
 \begin{align}
     y &= F(x), \quad \iff (\#eq:3a) \\
@@ -81,7 +100,11 @@ By the inversion method [@graham2013stochastic], if $Y \sim U[0,1]$, then
 
 ```{r, echo=FALSE}
 
-### Question 1a
+#######################
+# Question 1a
+#######################
+
+# Part A --------------------------
 
 generate_cauchy_samples <- function(n) {
   # Generate 'n' uniform random numbers between 0 and 1
@@ -115,7 +138,9 @@ In the following figure we plot the empirical cdf based on 1000 samples (black l
 
 ```{r echo=FALSE}
 
-### Question 1b
+#######################
+# Question 1b
+#######################
 
 # Sort the samples in ascending order
 sorted_samples <- sort(cauchy_samples)
@@ -143,7 +168,9 @@ lines(x_values, cdf_values, type = "l",
 
 ```{r echo=FALSE}
 
-### Question 1c
+#######################
+# Question 1c
+#######################
 
 calculate_ecdf <- function(x) {
     return(sum(sorted_samples <= x)/num_samples)
@@ -163,6 +190,109 @@ kbl(df,
     font_size = 12)
 ```
 
+# Data analysis
+
+## Data {#sec-data-source}
+```{r echo=FALSE}
+#| label: tbl-palmer
+#| tbl-cap: "Example rows of the Palmer penguin dataset."
+penguins |> head(n=6) |> kable()
+```
+
+## Refine your figures
+### A basic scatterplot 
+```{r echo=FALSE}
+#| label: fig-example-scatterplot
+
+plot(x = penguins$species,
+y = penguins$body_mass,
+ylab = "Body mass (g)",
+xlab = "Species",
+col = c(6,3,4))
+abline(h = mean(penguins$body_mass, na.rm = TRUE), col = 2, lwd = 2)
+```
+
+Visualizing data in a scatter plot can be important to understand how two variables behave. @fig-example-scatterplot shows an example from the Penguins dataset @sec-data-source.
+
+### Combine your plots 
+```{r echo=FALSE}
+#| layout-ncol: 2
+#| label: fig-example-combineplots
+#| fig-cap: "Two example plots relating to the Penguine bill dimensions."
+#| fig-subcap: 
+#|   - "Penguine bill dimensions with transparency adjustments"
+#|   - "Penguine bill dimensions with boxtype and legend adjustments"
+
+
+plot(x = penguins$bill_len,
+     y = penguins$bill_dep,
+     main = 'Penguine bill dimensions', 
+     xlab = 'Bill length (mm)', 
+     ylab = 'Bill depth (mm)', 
+     cex.axis = 1.2, #  relative scaling of axis values
+     cex.lab = 1.4, 
+     pch = 16, 
+     col = rgb(0, 0, 0, 0.7))
+
+plot(x = penguins$bill_len,
+     y = penguins$bill_dep,
+     main = 'Penguine bill dimensions',
+     xlab = 'Bill length (mm)', ylab = 'Bill depth (mm)',
+     cex.axis = 1.2,
+     cex.lab = 1.4,
+     pch = 16,
+     col = rgb(0,0,0,0.7))
+
+plot(x = penguins$bill_len, 
+y = penguins$bill_dep,
+main = 'Penguine bill dimensions',
+xlab = 'Bill length (mm)', ylab = 'Bill depth (mm)',
+cex.axis = 1.2,
+cex.lab = 1.4,
+pch = 15 + as.numeric(penguins$species),
+col = penguins$species,
+bty = "l")
+
+legend("bottomright",
+title = "Species",
+legend = c("Adelie", "Chinstrap", "Gentoo"),
+pch = 16:18,
+col = 1:3,
+bty = "n"
+)
+```
+
+@fig-example-combineplots shows that while there appears to be a positive association between bill length and depth within each species, this association disappears or perhaps reverses when considering all species together. 
+
+```{r echo=FALSE}
+
+mean(penguins$body_mass, na.rm = TRUE)
+median(penguins$body_mass, na.rm = TRUE)
+```
+
+## Table
+```{r echo=FALSE}
+#| label: tbl-penguin
+#| tbl-cap: "Count of each species in the penguin dataset."
+
+species_counts <- table(penguins$species)
+knitr::kable(species_counts, col.names = c("Species", "Count"))
+```
+
+```{r echo=FALSE}
+# fit linear model
+mass_lm <- lm(formula = body_mass ~ 1 + species, penguins)
+
+# extract coefficients and standard errors
+mass_lm_coefficients <- summary(mass_lm)$coefficients[,1:2]
+
+# mass_lm_coefficients
+knitr::kable(
+x = round(mass_lm_coefficients, 2),
+col.names = c("MLE", "Std. Err"))
+```
+
+@tbl-penguin gives the count data inferred from the Palmer penguins dataset. In your reports, all tables should have a caption and be discussed in the main text.
 
 # Code appendix
 
@@ -174,3 +304,7 @@ Please keep in mind to format the code so that the entire code is clearly visibl
 ```
 
 # References
+[What is penguine?](https://www.bas.ac.uk/about/antarctica/wildlife/penguins/)
+
+::: {#refs}
+:::
